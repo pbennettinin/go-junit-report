@@ -59,7 +59,7 @@ func Parse(r io.Reader) (*Report, error) {
 
 		line := string(l)
 
-		if strings.HasPrefix(line, "=== RUN ") {
+		if strings.HasPrefix(line, "=== RUN") {
 			// start of a new test
 			if test != nil {
 				tests = append(tests, *test)
@@ -95,9 +95,9 @@ func Parse(r io.Reader) (*Report, error) {
 
 				test.Name = matches[2]
 				test.Time = parseTime(matches[3]) * 10
-			} else if strings.HasPrefix(line, "\t") {
+			} else {
 				// test output
-				test.Output = append(test.Output, line[1:])
+				test.Output = append(test.Output, line)
 			}
 		}
 	}
