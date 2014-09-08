@@ -33,7 +33,7 @@ type Test struct {
 }
 
 var (
-	regexStatus = regexp.MustCompile(`^--- (PASS|FAIL): (.+) \(([0-9.]+)(?: seconds|us)?\)$`)
+	regexStatus = regexp.MustCompile(`^--- (PASS|FAIL|SKIP): (.+) \(([0-9.]+)(?: seconds|ms|us)?\)$`)
 	regexResult = regexp.MustCompile(`^(ok|FAIL)\s+(.+)\s([0-9.]+)s$`)
 )
 
@@ -87,7 +87,7 @@ func Parse(r io.Reader) (*Report, error) {
 		} else if test != nil {
 			if matches := regexStatus.FindStringSubmatch(line); len(matches) == 4 {
 				// test status
-				if matches[1] == "PASS" {
+				if matches[1] == "PASS" || matches[1] == "SKIP" {
 					test.Result = PASS
 				} else {
 					test.Result = FAIL
