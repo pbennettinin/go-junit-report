@@ -34,7 +34,7 @@ type Test struct {
 
 var (
 	regexStart  = regexp.MustCompile(`^=== RUN:? (.+)$`)
-	regexStatus = regexp.MustCompile(`^--- (PASS|FAIL|SKIP): (.+) \(([0-9.]+)(?: ?s|seconds|ms|us)?\)$`)
+	regexStatus = regexp.MustCompile(`^--- (PASS|FAIL|SKIP): (.+) \(([0-9.]+) ?(?:s|seconds|ms|us)?\)$`)
 	regexResult = regexp.MustCompile(`^(ok|FAIL)\s+(.+)\s([0-9.]+)s$`)
 )
 
@@ -97,8 +97,12 @@ func Parse(r io.Reader) (*Report, error) {
 				test.Name = matches[2]
 				test.Time = parseTime(matches[3]) * 10
 			} else {
-				// test output
-				test.Output = append(test.Output, line)
+				if line == "PASS" || line == "FAIL" || strings.HasPrefix(line, "exit status") {
+					// status for end of tests - don't add as output into prior test
+				} else {
+					// log ALL test output
+					test.Output = append(test.Output, line)
+				}
 			}
 		}
 	}
