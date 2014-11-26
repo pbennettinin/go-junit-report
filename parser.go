@@ -33,7 +33,8 @@ type Test struct {
 }
 
 var (
-	regexStatus = regexp.MustCompile(`^--- (PASS|FAIL|SKIP): (.+) \(([0-9.]+)(?: seconds|ms|us)?\)$`)
+	regexStart  = regexp.MustCompile(`^=== RUN:? (.+)$`)
+	regexStatus = regexp.MustCompile(`^--- (PASS|FAIL|SKIP): (.+) \(([0-9.]+)(?: ?s|seconds|ms|us)?\)$`)
 	regexResult = regexp.MustCompile(`^(ok|FAIL)\s+(.+)\s([0-9.]+)s$`)
 )
 
@@ -59,14 +60,14 @@ func Parse(r io.Reader) (*Report, error) {
 
 		line := string(l)
 
-		if strings.HasPrefix(line, "=== RUN") {
+		if matches := regexStart.FindStringSubmatch(line); len(matches) == 2 {
 			// start of a new test
 			if test != nil {
 				tests = append(tests, *test)
 			}
 
 			test = &Test{
-				Name:   line[8:],
+				Name:   matches[1],
 				Result: FAIL,
 				Output: make([]string, 0),
 			}
